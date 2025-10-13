@@ -29,7 +29,7 @@ return new class extends Migration
 
             //Estat del slot
             $table->enum('status',['disponible','reservat','bloquejat'])
-            ->default('available');
+            ->default('disponible');
             $table->timestamps();
 
             //Prevenir slots duplicats amb una clau composta

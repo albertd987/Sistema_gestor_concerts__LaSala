@@ -17,10 +17,10 @@ return new class extends Migration
 
             //Relacions
             $table->foreignId('id_artista')
-                ->constrained()
+                ->constrained('artistes') //algunes taules les he d'especificar xq laravel ho singularitza
                 ->cascadeOnDelete();
             $table->foreignId('id_slot')
-                ->constrained()
+                ->constrained('slots') //algunes taules les he d'especificar xq laravel ho singularitza
                 ->cascadeOnDelete();
 
             //Estat de la reserva
@@ -33,14 +33,14 @@ return new class extends Migration
             $table->timestamp('aprovat_a')->nullable();
             $table->foreignId('aprovat_per')
                 ->nullable()
-                ->constrained('usuaris')
+                ->constrained('users')
                 ->nullOnDelete();
             $table->unique(['id_slot','status'],'unique_aprovat_slot');
 
             //index per consultes frequents
             $table->index(['id_artista','status']);
             $table->index('status');
-
+            $table->timestamps();
 
         });
 

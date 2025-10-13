@@ -18,7 +18,7 @@ return new class extends Migration
 
             //Relació 1:1 amb usuaris
             $table->foreignId('id_usuari')
-                ->constrained()
+                ->constrained('users')
                 ->cascadeOnDelete();
 
             //Info bàsica de l'artista

@@ -14,7 +14,7 @@ return new class extends Migration //crear la taula usuaris abans de migrar
      */
     public function up(): void
     {
-        Schema::table('usuaris', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->enum('rol',['public','artista','admin'])
                 ->default('public') 
                 ->after('email');
@@ -26,7 +26,7 @@ return new class extends Migration //crear la taula usuaris abans de migrar
      */
     public function down(): void
     {
-        Schema::table('usuaris', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('rol');
         });
     }
