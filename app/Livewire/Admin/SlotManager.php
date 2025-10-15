@@ -73,13 +73,13 @@ class SlotManager extends Component
     public function edit($slotId)
     {
         $slot = Slot::findOrFail($slotId);
-        
+
         $this->editingSlotId = $slot->id;
         $this->data = $slot->data->format('Y-m-d');
         $this->hora_inici = substr($slot->hora_inici, 0, 5);
         $this->hora_fi = substr($slot->hora_fi, 0, 5);
         $this->status = $slot->status->value;
-        
+
         $this->showModal = true;
     }
 
@@ -89,6 +89,23 @@ class SlotManager extends Component
     public function save()
     {
         $this->validate();
+        // Verificar solapament ABANS de guardar
+        $solapament = $this->checkOverlap(
+            $this->data,
+            $this->hora_inici,
+            $this->hora_fi,
+            $this->editingSlotId // Excloure slot actual si estem editant
+        );
+
+        if ($solapament) {
+            $this->addError('data', sprintf(
+                'Aquest slot es solapa amb un altre existent: %s %s - %s',
+                $solapament->data->format('d/m/Y'),
+                substr($solapament->hora_inici, 0, 5),
+                substr($solapament->hora_fi, 0, 5)
+            ));
+            return;
+        }
 
         try {
             if ($this->editingSlotId) {
@@ -100,7 +117,7 @@ class SlotManager extends Component
                     'hora_fi' => $this->hora_fi . ':00',
                     'status' => $this->status,
                 ]);
-                
+
                 session()->flash('message', 'Slot actualitzat correctament!');
             } else {
                 // Crear nou slot
@@ -110,12 +127,11 @@ class SlotManager extends Component
                     'hora_fi' => $this->hora_fi . ':00',
                     'status' => $this->status,
                 ]);
-                
+
                 session()->flash('message', 'Slot creat correctament!');
             }
 
             $this->closeModal();
-            
         } catch (\Illuminate\Database\QueryException $e) {
             // Error de constraint único (slot duplicat)
             if ($e->errorInfo[1] === 1062) {
@@ -133,16 +149,15 @@ class SlotManager extends Component
     {
         try {
             $slot = Slot::findOrFail($slotId);
-            
+
             // Verificar que no tingui reserves aprovades
             if ($slot->reservaAprovada()->exists()) {
                 session()->flash('error', 'No es pot eliminar un slot amb reserves aprovades');
                 return;
             }
-            
+
             $slot->delete();
             session()->flash('message', 'Slot eliminat correctament!');
-            
         } catch (\Exception $e) {
             session()->flash('error', 'Error al eliminar el slot');
         }
@@ -154,7 +169,7 @@ class SlotManager extends Component
     public function toggleBlock($slotId)
     {
         $slot = Slot::findOrFail($slotId);
-        
+
         if ($slot->status === SlotStatus::BLOQUEJAT) {
             $slot->alliberar();
             session()->flash('message', 'Slot desbloquejat');
@@ -198,5 +213,39 @@ class SlotManager extends Component
             'slots' => $slots,
             'statusOptions' => SlotStatus::cases(),
         ]);
+    }
+    /**
+     * Verificar si un slot se solapa amb altres slots existents
+     */
+    private function checkOverlap($data, $hora_inici, $hora_fi, $excludeId = null)
+    {
+        // Convertir hores a format comparable
+        $nouInici = $hora_inici . ':00';
+        $nouFi = $hora_fi . ':00';
+
+        // Buscar slots en la mateixa data
+        $query = Slot::where('data', $data);
+
+        // Si estem editant, excloure el slot actual
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $slotsExistents = $query->get();
+
+        // Verificar solapament amb cada slot existent
+        foreach ($slotsExistents as $slot) {
+            $existentInici = $slot->hora_inici;
+            $existentFi = $slot->hora_fi;
+
+            // Lògica de solapament:
+            // Hi ha solapament si:
+            // (nou_inici < existent_fi) AND (nou_fi > existent_inici)
+            if ($nouInici < $existentFi && $nouFi > $existentInici) {
+                return $slot; // Retornar el slot amb el que es solapa
+            }
+        }
+
+        return null; // No hi ha solapament
     }
 }
