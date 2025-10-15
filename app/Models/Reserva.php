@@ -76,7 +76,7 @@ class Reserva extends Model
      */
     public function scopePendents($query)
     {
-        return $query->where('status', EstatReserva::PENDENT);
+        return $query->where('reserves.status', EstatReserva::PENDENT);
     }
 
     /**
@@ -84,7 +84,7 @@ class Reserva extends Model
      */
     public function scopeAprovades($query)
     {
-        return $query->where('status', EstatReserva::APROVAT);
+        return $query->where('reserves.status', EstatReserva::APROVAT);
     }
 
     /**
@@ -92,7 +92,7 @@ class Reserva extends Model
      */
     public function scopeRebutjades($query)
     {
-        return $query->where('status', EstatReserva::REBUTJAT);
+        return $query->where('reserves.status', EstatReserva::REBUTJAT);
     }
 
     /**

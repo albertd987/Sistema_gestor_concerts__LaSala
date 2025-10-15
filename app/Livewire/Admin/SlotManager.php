@@ -31,7 +31,7 @@ class SlotManager extends Component
         return [
             'data' => 'required|date|after_or_equal:today',
             'hora_inici' => 'required|date_format:H:i',
-            'hora_fi' => 'required|date_format:H:i|after:hora_inici',
+            'hora_fi' => 'required|date_format:H:i|different:hora_inici',
             'status' => 'required|in:disponible,reservat,bloquejat',
         ];
     }
@@ -43,7 +43,7 @@ class SlotManager extends Component
         'hora_inici.required' => "L'hora d'inici és obligatòria",
         'hora_inici.date_format' => 'Format incorrecte (HH:MM)',
         'hora_fi.required' => "L'hora de fi és obligatòria",
-        'hora_fi.after' => "L'hora de fi ha de ser posterior a l'hora d'inici",
+        'hora_fi.different' => "L'hora de fi no pot ser igual a l'hora d'inici",
     ];
 
     // Resetejar paginació quan es filtren resultats
