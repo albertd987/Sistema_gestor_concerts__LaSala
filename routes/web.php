@@ -35,8 +35,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 // ==================== RUTES ARTISTA ====================
 Route::middleware(['auth', 'role:artista'])->prefix('artista')->group(function () {
     Route::get('/dashboard', function () {
-        return view('artista.dashboard');
+        return redirect('/artista/reservar');
     });
     
-    // TODO: Afegir més rutes Artista
+    Route::get('/reservar', function () {
+        return view('artista.reservar');
+    });
+    
+    // TODO: Afegir ruta de "Les Meves Reserves"
 });
