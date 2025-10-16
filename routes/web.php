@@ -5,7 +5,17 @@ use Illuminate\Support\Facades\Route;
 
 // ==================== RUTES PÚBLIQUES ====================
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/agenda'); // Redirigir home a agenda
+});
+
+// Agenda pública de concerts
+Route::get('/agenda', function () {
+    return view('public.agenda');
+});
+
+// Detall d'un esdeveniment específic
+Route::get('/agenda/{id}', function ($id) {
+    return view('public.event-detail', ['eventId' => $id]);
 });
 
 // ==================== AUTENTICACIÓ ====================

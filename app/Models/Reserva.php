@@ -30,6 +30,7 @@ class Reserva extends Model
         'notes_admin',
         'aprovat_a',
         'aprovat_per',
+        'poster_url',  // ← Nou camp
     ];
 
     /**
@@ -109,9 +110,9 @@ class Reserva extends Model
     public function scopeOrdenadesPorData($query)
     {
         return $query->join('slots', 'reserves.id_slot', '=', 'slots.id')
-                    ->orderBy('slots.data', 'desc')
-                    ->orderBy('slots.hora_inici', 'desc')
-                    ->select('reserves.*');
+            ->orderBy('slots.data', 'desc')
+            ->orderBy('slots.hora_inici', 'desc')
+            ->select('reserves.*');
     }
 
     // ==================== MÈTODES CRÍTICS DE NEGOCI ====================
@@ -297,5 +298,29 @@ class Reserva extends Model
     public function esUrgent(): bool
     {
         return $this->status->esPendent() && $this->diesDesDeSolicitud() > 3;
+    }
+
+    // Agregar esto al modelo Reserva.php existente
+
+    /**
+     * Atributs assignables en massa
+     */
+
+
+    // ==================== ACCESSORS ====================
+
+    /**
+     * Obtenir URL del poster amb fallback
+     */
+    public function getPosterAttribute(): string
+    {
+        // Si té poster assignat, retornar-lo
+        if ($this->poster_url) {
+            return $this->poster_url;
+        }
+
+        // Fallback: placeholder amb el nom del gènere de l'artista
+        $genere = $this->artista->genere ?? 'concert';
+        return "https://placehold.co/600x800/1a1a1a/8b5cf6?text=" . urlencode($genere);
     }
 }
